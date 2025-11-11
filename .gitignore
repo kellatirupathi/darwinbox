@@ -1,0 +1,19 @@
+# Streamlit secrets file
+.streamlit/secrets.toml
+
+# Python virtual environment
+venv/
+.venv/
+env/
+*.env
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Application-generated data
+run_archive/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
