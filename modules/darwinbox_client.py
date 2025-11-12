@@ -64,20 +64,24 @@ class DarwinboxClient:
             data = response.json()
             if data.get("status") == 1:
                 candidates_raw = data.get("data", [])
+                processed_candidates = [] # Create a new list for valid candidates
+
                 for cand in candidates_raw:
+                    # --- FIX: Check if the item is a dictionary before processing ---
+                    if not isinstance(cand, dict):
+                        # If it's a string or something else, just skip to the next item
+                        continue
+
                     cand['name'] = f"{cand.get('firstname', '')} {cand.get('lastname', '')}".strip()
                     resume_url = ""
                     app_data = cand.get('application_data', {})
                     if 'Resume' in app_data and isinstance(app_data['Resume'], dict):
                         resume_url = app_data['Resume'].get('Resume', '')
                     cand['darwinbox_resume_url'] = resume_url
-                return candidates_raw
-            else:
-                st.error(f"Darwinbox API Error (get_candidates_for_job): {data.get('message')}")
-                return []
-        except requests.exceptions.RequestException as e:
-            st.error(f"Failed to fetch candidates due to a network or HTTP error: {e}")
-            return []
+                    
+                    processed_candidates.append(cand) # Add the valid, processed candidate to our new list
+                
+                return processed_candidates # Return the clean list
 
     def shortlist_candidate(self, candidate_id: str, job_id: str):
         url = f"{self.base_url}/JobsApiv3/candidatetag"
