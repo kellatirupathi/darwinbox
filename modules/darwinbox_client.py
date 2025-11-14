@@ -67,9 +67,7 @@ class DarwinboxClient:
                 processed_candidates = [] # Create a new list for valid candidates
 
                 for cand in candidates_raw:
-                    # --- FIX: Check if the item is a dictionary before processing ---
                     if not isinstance(cand, dict):
-                        # If it's a string or something else, just skip to the next item
                         continue
 
                     cand['name'] = f"{cand.get('firstname', '')} {cand.get('lastname', '')}".strip()
@@ -79,9 +77,16 @@ class DarwinboxClient:
                         resume_url = app_data['Resume'].get('Resume', '')
                     cand['darwinbox_resume_url'] = resume_url
                     
-                    processed_candidates.append(cand) # Add the valid, processed candidate to our new list
+                    processed_candidates.append(cand)
                 
-                return processed_candidates # Return the clean list
+                return processed_candidates
+            else:
+                st.error(f"Darwinbox API Error (get_candidates_for_job): {data.get('message')}")
+                return []
+        # --- FIX: ADDED THE MISSING EXCEPT BLOCK ---
+        except requests.exceptions.RequestException as e:
+            st.error(f"Connection Error (get_candidates_for_job): Could not connect. Details: {e}")
+            return []
 
     def shortlist_candidate(self, candidate_id: str, job_id: str):
         url = f"{self.base_url}/JobsApiv3/candidatetag"
